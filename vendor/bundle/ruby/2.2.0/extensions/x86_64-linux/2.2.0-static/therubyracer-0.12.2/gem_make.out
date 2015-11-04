@@ -1,0 +1,47 @@
+current directory: /home/rails/resource-server-rails/vendor/bundle/ruby/2.2.0/gems/therubyracer-0.12.2/ext/v8
+/usr/local/rbenv/versions/2.2.1/bin/ruby -r ./siteconf20151104-2562-mrpo3y.rb extconf.rb
+checking for main() in -lpthread... yes
+creating Makefile
+
+To see why this extension failed to compile, please check the mkmf.log which can be found here:
+
+  /home/rails/resource-server-rails/vendor/bundle/ruby/2.2.0/extensions/x86_64-linux/2.2.0-static/therubyracer-0.12.2/mkmf.log
+
+current directory: /home/rails/resource-server-rails/vendor/bundle/ruby/2.2.0/gems/therubyracer-0.12.2/ext/v8
+make "DESTDIR=" clean
+
+current directory: /home/rails/resource-server-rails/vendor/bundle/ruby/2.2.0/gems/therubyracer-0.12.2/ext/v8
+make "DESTDIR="
+compiling script.cc
+compiling exception.cc
+compiling string.cc
+compiling v8.cc
+compiling object.cc
+compiling init.cc
+compiling primitive.cc
+compiling accessor.cc
+compiling stack.cc
+compiling constraints.cc
+compiling backref.cc
+compiling external.cc
+compiling invocation.cc
+compiling context.cc
+compiling constants.cc
+compiling value.cc
+compiling gc.cc
+compiling array.cc
+compiling rr.cc
+compiling heap.cc
+compiling template.cc
+compiling function.cc
+compiling message.cc
+compiling locker.cc
+compiling handles.cc
+compiling date.cc
+compiling trycatch.cc
+compiling signature.cc
+linking shared-object v8/init.so
+
+current directory: /home/rails/resource-server-rails/vendor/bundle/ruby/2.2.0/gems/therubyracer-0.12.2/ext/v8
+make "DESTDIR=" install
+/usr/bin/install -c -m 0755 init.so ./.gem.20151104-2562-16ezd25/v8

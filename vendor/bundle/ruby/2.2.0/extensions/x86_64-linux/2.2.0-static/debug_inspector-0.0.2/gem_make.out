@@ -1,0 +1,15 @@
+current directory: /home/rails/resource-server-rails/vendor/bundle/ruby/2.2.0/gems/debug_inspector-0.0.2/ext/debug_inspector
+/usr/local/rbenv/versions/2.2.1/bin/ruby -r ./siteconf20151104-2562-p9n7ua.rb extconf.rb
+creating Makefile
+
+current directory: /home/rails/resource-server-rails/vendor/bundle/ruby/2.2.0/gems/debug_inspector-0.0.2/ext/debug_inspector
+make "DESTDIR=" clean
+
+current directory: /home/rails/resource-server-rails/vendor/bundle/ruby/2.2.0/gems/debug_inspector-0.0.2/ext/debug_inspector
+make "DESTDIR="
+compiling debug_inspector.c
+linking shared-object debug_inspector.so
+
+current directory: /home/rails/resource-server-rails/vendor/bundle/ruby/2.2.0/gems/debug_inspector-0.0.2/ext/debug_inspector
+make "DESTDIR=" install
+/usr/bin/install -c -m 0755 debug_inspector.so ./.gem.20151104-2562-1k673lp

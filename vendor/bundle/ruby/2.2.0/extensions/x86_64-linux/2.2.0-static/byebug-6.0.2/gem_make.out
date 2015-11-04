@@ -1,0 +1,19 @@
+current directory: /home/rails/resource-server-rails/vendor/bundle/ruby/2.2.0/gems/byebug-6.0.2/ext/byebug
+/usr/local/rbenv/versions/2.2.1/bin/ruby -r ./siteconf20151104-2562-10thwmm.rb extconf.rb
+creating Makefile
+
+current directory: /home/rails/resource-server-rails/vendor/bundle/ruby/2.2.0/gems/byebug-6.0.2/ext/byebug
+make "DESTDIR=" clean
+
+current directory: /home/rails/resource-server-rails/vendor/bundle/ruby/2.2.0/gems/byebug-6.0.2/ext/byebug
+make "DESTDIR="
+compiling byebug.c
+compiling threads.c
+compiling locker.c
+compiling breakpoint.c
+compiling context.c
+linking shared-object byebug/byebug.so
+
+current directory: /home/rails/resource-server-rails/vendor/bundle/ruby/2.2.0/gems/byebug-6.0.2/ext/byebug
+make "DESTDIR=" install
+/usr/bin/install -c -m 0755 byebug.so ./.gem.20151104-2562-vrlhmd/byebug
