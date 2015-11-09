@@ -1,79 +1,110 @@
-class AuthorizationController < ApplicationController
+class AuthorizationController < AuthleteController
+  include Authlete::Utility
 
 
   public
 
 
-  def authorization
-    begin
-      do_authorization
-    rescue Exception => e
-
-    end
+  def token
+    proc
   end
 
-  def authorization_submit
 
+  protected
+
+
+  def do_proc
+    # If client credentials are presented
+    # in the 'Authorization' header.
+    if has_basic_credentials?(request)
+      # Extract the client credentials from the header if presented.
+      credentials   = user_name_and_password(request)
+      client_id     = credentials[0] unless credentials.nil?
+      client_secret = credentials[1] unless credentials.nil?
+    end
+
+    # Call Authlete's /auth/token API and dispatch
+    # the processing according to the action in the response.
+    do_token(params, client_id, client_secret)
   end
 
 
   private
 
 
-  def token
-
-  end
-
-
-  def handle_password(response)
-    # This implementation does not support "Resource Owner
-    # Password Credentials". So, handle_password always fails.
-    return do_token_fail(response["ticket"], "UNKNOWN")
-  end
-
-
   #--------------------------------------------------
-  # Call Authlete's /auth/authorization/fail API and
-  # dispatch the processing according to the action.
+  # Call Authlete's /auth/token API and dispatch the
+  # processing according to the action.
   #--------------------------------------------------
-  def do_token
-    # Call Authlete's /auth/authorization/fail API.
-    response = call_authorization_fail_api(ticket, reason)
+  def do_token(params, client_id, client_secret)
+    # Call Authlete's /auth/token API.
+    response = call_token_api(params, client_id, client_secret)
 
     # The content of the response to the client.
-    content = response["responseContent"]
+    content = response[:response_content]
 
-    # "action" denotes the next action.
-    case response["action"]
-      when "INTERNAL_SERVER_ERROR"
+    # 'action' denotes the next action.
+    case response[:action]
+      when 'INVALID_CLIENT'
+        # 401 Unauthorized
+        #   Client authentication failed.
+        render_json_www_authenticate(:bad_request, 'Basic realm=\"/token\"', content)
+
+      when 'INTERNAL_SERVER_ERROR'
         # 500 Internal Server Error
         #   The API request from this implementation was wrong
         #   or an error occurred in Authlete.
-        render :json => content, :status => 500
+        render_json(:internal_server_error, content)
 
-      when "BAD_REQUEST"
+      when 'BAD_REQUEST'
         # 400 Bad Request
-        #   The ticket is no longer valid (deleted or expired)
-        #   and the reason of the invalidity was probably due
-        #   to the end-user's too-delayed response to the
-        #   authorization UI.
-        render :json => content, :status => 400
+        #   The token request from the client was wrong.
+        render_json(:bad_request, content)
 
-      when "LOCATION"
-        # 302 Found
-        #   The authorization request was invalid and the error
-        #   is reported to the redirect URI using Location header.
-        return redirect_to(content)
+      when 'PASSWORD'
+        # Process the token request whose flow is
+        # 'Resource Owner Password Credentials'.
+        handle_password(response)
 
-      when "FORM"
+      when 'OK'
         # 200 OK
-        #   The authorization request was invalid and the error
-        #   is reported to the redirect URI using HTML Form Post.
-        render :html => content, :status => 200
+        #   The token request from the client was valid. An access
+        #   token is issued to the client application.
+        render_json(:ok, content)
 
       else
         # This never happens.
-        render :text => "Unknown action", :status => 500
+        render_text(:internal_server_error, 'Unknown action')
+    end
+  end
+
+
+  #--------------------------------------------------
+  # Call Authlete's /auth/token/issue API and dispatch
+  # the processing according to the action.
+  #--------------------------------------------------
+  def do_token_issue(ticket, subject)
+    # Call Authlete's /auth/token/issue API.
+    response = call_authlete_token_issue_api(ticket, subject)
+
+    # The content of the response to the client application.
+    content = response[:response_content]
+
+    # Dispatch according to the action.
+    case response[:action]
+      when 'INTERNAL_SERVER_ERROR'
+        # 500 Internal Server Error
+        #   The API request from this implementation was wrong
+        #   or an error occurred in Authlete.
+        render_json(:internal_server_error, content)
+
+      when 'OK'
+        # 200 OK
+        render_json(:ok, content)
+
+      else
+        # This never happens.
+        render_text(:internal_server_error, 'Unknown action')
     end
   end
 
@@ -87,35 +118,52 @@ class AuthorizationController < ApplicationController
     response = call_token_fail_api(ticket, reason)
 
     # The content of the response to the client.
-    content = response["responseContent"]
+    content = response[:response_content]
 
-    # "action" denotes the next action.
-    case response["action"]
-      when "INTERNAL_SERVER_ERROR"
+    # 'action' denotes the next action.
+    case response[:action]
+      when 'INTERNAL_SERVER_ERROR'
         # 500 Internal Server Error
         #   The API request from this implementation was wrong
         #   or an error occurred in Authlete.
-        return WebResponse.new(500, content).json.to_response
+        render_json(:internal_server_error, content)
 
-      when "BAD_REQUEST"
+      when 'BAD_REQUEST'
         # 400 Bad Request
         #   Authlete successfully generated an error response
         #   for the client application.
-        return WebResponse.new(400, content).json.to_response
+        render_json(:bad_request, content)
 
       else
         # This never happens.
-        return WebResponse.new(500, "Unknown action").plain.to_response
+        render_text(:internal_server_error, 'Unknown action')
     end
   end
 
 
-  #-------------------------------------------
-  # Call Authlete APIs.
-  #-------------------------------------------
-  def call_authorization_api
+  def handle_password(response)
+    # Extract the ticket.
+    ticket = response[:ticket]
+
+    # Extract the resource owner's credentials.
+    username = response[:username]
+    password = response[:password]
+
+    # Validate the credentials.
+    subject = validate_credentials(username, password)
+
+    if subject.nil?
+      # Issue an access token and optionally an ID token.
+      do_token_fail(ticket, subject)
+    else
+      # The credentials are invalid.
+      # An access token is not issued.
+      do_token_issue(ticket, subject)
+    end
   end
 
-  def call_authorization_fail_api
+
+  def validate_credentials(username, password)
+    # TODO: Implement this.
   end
 end

@@ -10,11 +10,10 @@ class SampleResourceController < BaseResourceController
     # presented to the end user.
     introspected = introspect_access_token([ 'hello' ], 'Bob')
 
-    # If the access token is invalid (the returned value is nil),
-    # return.
+    # If the access token is invalid (the returned value is nil).
     return if introspected.nil?
 
-    # If it's valid, render the message.
+    # If the access token is valid.
     render :json => 'Hello', :status => :ok
   end
 end

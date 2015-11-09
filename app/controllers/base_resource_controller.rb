@@ -9,13 +9,12 @@ class BaseResourceController < ApplicationController
   # Extract an access token (RFC 6750).
   #--------------------------------------------------
   def extract_access_token(request)
-    header = request.env["HTTP_AUTHORIZATION"]
+    # Extract an access token from the request header if present.
+    header = request.env['HTTP_AUTHORIZATION']
+    return $1 if /^Bearer[ ]+(.+)/i =~ header
 
-    if /^Bearer[ ]+(.+)/i =~ header
-      return $1
-    end
-
-    request["access_token"]
+    # Otherwise, extract it from the query or form parameters.
+    request['access_token']
   end
 
 
@@ -45,7 +44,7 @@ class BaseResourceController < ApplicationController
     access_token = extract_access_token(request)
 
     # Introspect the access token by /auth/introspection API.
-    do_introspect(access_token, scopes, subject)
+    do_introspect_access_token(access_token, scopes, subject)
   end
 
 
@@ -57,10 +56,10 @@ class BaseResourceController < ApplicationController
     res = call_introspection_api(access_token, scopes, subject)
 
     # The content of the response to the client.
-    content = res["responseContent"]
+    content = res[:request_content]
 
     # "action" denotes the next action.
-    case res["action"]
+    case res[:action]
       when "INTERNAL_SERVER_ERROR"
         # 500 Internal Server Error
         #   The API request from this implementation was wrong
